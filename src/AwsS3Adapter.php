@@ -19,17 +19,17 @@ class AwsS3Adapter extends AbstractAdapter
     /**
      * @var array
      */
-    protected static $resultMap = [
+    protected static $resultMap = array(
         'Body'          => 'raw_contents',
         'ContentLength' => 'size',
         'ContentType'   => 'mimetype',
         'Size'          => 'size',
-    ];
+    );
 
     /**
      * @var array
      */
-    protected static $metaOptions = [
+    protected static $metaOptions = array(
         'CacheControl',
         'Expires',
         'StorageClass',
@@ -40,7 +40,7 @@ class AwsS3Adapter extends AbstractAdapter
         'ContentDisposition',
         'ContentLanguage',
         'ContentEncoding',
-    ];
+    );
 
     /**
      * @var string bucket name
@@ -59,11 +59,11 @@ class AwsS3Adapter extends AbstractAdapter
      *            Concurrency=3 - If multipart is used, how many concurrent connections should be used
      *            ]
      */
-    protected $options = [
+    protected $options = array(
         'Multipart'   => 1024,
         'MinPartSize' => 32,
         'Concurrency' => 3,
-    ];
+    );
 
     /**
      * @var UploadBuilder Used to upload object using a multipart transfer
@@ -83,7 +83,7 @@ class AwsS3Adapter extends AbstractAdapter
         S3Client $client,
         $bucket,
         $prefix = null,
-        array $options = [],
+        array $options = array(),
         UploadBuilder $uploadBuilder = null
     ) {
         $this->client  = $client;
@@ -130,11 +130,11 @@ class AwsS3Adapter extends AbstractAdapter
     {
         $options = $this->getOptions(
             $path,
-            [
+            array(
                 'Body'          => $contents,
                 'ContentType'   => Util::guessMimeType($path, $contents),
                 'ContentLength' => Util::contentSize($contents),
-            ],
+            ),
             $config
         );
 
@@ -146,7 +146,7 @@ class AwsS3Adapter extends AbstractAdapter
      */
     public function writeStream($path, $resource, Config $config)
     {
-        $options = ['Body' => $resource];
+        $options = array('Body' => $resource);
         $options['ContentLength'] = Util::getStreamSize($resource);
         $options = $this->getOptions($path, $options, $config);
 
@@ -253,11 +253,11 @@ class AwsS3Adapter extends AbstractAdapter
      */
     public function rename($path, $newpath)
     {
-        $options = $this->getOptions($newpath, [
+        $options = $this->getOptions($newpath, array(
             'Bucket'     => $this->bucket,
             'CopySource' => $this->bucket.'/'.$this->applyPathPrefix($path),
             'ACL'        => $this->getObjectACL($path),
-        ]);
+        ));
 
         $this->client->copyObject($options);
         $this->delete($path);
@@ -270,11 +270,11 @@ class AwsS3Adapter extends AbstractAdapter
      */
     public function copy($path, $newpath)
     {
-        $options = $this->getOptions($newpath, [
+        $options = $this->getOptions($newpath, array(
             'Bucket'     => $this->bucket,
             'CopySource' => $this->bucket.'/'.$this->applyPathPrefix($path),
             'ACL'        => $this->getObjectACL($path),
-        ]);
+        ));
 
         $this->client->copyObject($options)->getAll();
 
@@ -314,7 +314,7 @@ class AwsS3Adapter extends AbstractAdapter
             return false;
         }
 
-        return ['path' => $path, 'type' => 'dir'];
+        return array('path' => $path, 'type' => 'dir');
     }
 
     /**
@@ -390,9 +390,9 @@ class AwsS3Adapter extends AbstractAdapter
      */
     public function setVisibility($path, $visibility)
     {
-        $options = $this->getOptions($path, [
+        $options = $this->getOptions($path, array(
             'ACL' => $visibility === AdapterInterface::VISIBILITY_PUBLIC ? 'public-read' : 'private',
-        ]);
+        ));
 
         $this->client->putObjectAcl($options);
 
@@ -404,13 +404,13 @@ class AwsS3Adapter extends AbstractAdapter
      */
     public function listContents($dirname = '', $recursive = false)
     {
-        $objectsIterator = $this->client->getIterator('listObjects', [
+        $objectsIterator = $this->client->getIterator('listObjects', array(
             'Bucket' => $this->bucket,
             'Prefix' => $this->applyPathPrefix($dirname),
-        ]);
+        ));
 
         $contents = iterator_to_array($objectsIterator);
-        $result = array_map([$this, 'normalizeResponse'], $contents);
+        $result = array_map(array($this, 'normalizeResponse'), $contents);
 
         $result = array_filter($result, function ($value) {
             return $value['path'] !== false;
@@ -429,7 +429,7 @@ class AwsS3Adapter extends AbstractAdapter
      */
     protected function normalizeResponse(array $object, $path = null)
     {
-        $result = ['path' => $path ?: $this->removePathPrefix($object['Key'])];
+        $result = array('path' => $path ?: $this->removePathPrefix($object['Key']));
         $result['dirname'] = Util::dirname($result['path']);
 
         if (isset($object['LastModified'])) {
@@ -443,7 +443,7 @@ class AwsS3Adapter extends AbstractAdapter
             return $result;
         }
 
-        $result = array_merge($result, Util::map($object, static::$resultMap), ['type' => 'file']);
+        $result = array_merge($result, Util::map($object, static::$resultMap), array('type' => 'file'));
 
         return $result;
     }
@@ -457,7 +457,7 @@ class AwsS3Adapter extends AbstractAdapter
      *
      * @return array AWS options
      */
-    protected function getOptions($path, array $options = [], Config $config = null)
+    protected function getOptions($path, array $options = array(), Config $config = null)
     {
         $options = array_merge($this->options, $options);
         $options['Key']    = $this->applyPathPrefix($path);
@@ -479,7 +479,7 @@ class AwsS3Adapter extends AbstractAdapter
      */
     protected function getOptionsFromConfig(Config $config)
     {
-        $options = [];
+        $options = array();
 
         foreach (static::$metaOptions as $option) {
             if (! $config->has($option)) {
