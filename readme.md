@@ -2,7 +2,7 @@ PHP 5.3 support.
 
 # Flysystem Adapter for AWS S3 SDK v2
 
-[![Build Status](https://travis-ci.org/mapyo/flysystem-aws-s3-v2.svg?branch=master)](https://travis-ci.org/thephpleague/flysystem-aws-s3-v2)
+[![Build Status](https://travis-ci.org/mapyo/flysystem-aws-s3-v2.svg?branch=master)](https://travis-ci.org/mapyo/flysystem-aws-s3-v2)
 
 
 ## Installation
